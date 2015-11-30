@@ -7,9 +7,14 @@ $( document ).ready(function() {
     	zoomLevel: 13
     };
     map = initBaseMap(basemapNr,initLocation);
+    var requestVariable = "Geluidbelasting_wegen";
+    getValueFromWMS(initLocation.lat,initLocation.lng,requestVariable);
 });
 
 function listAvailableBasemaps(){
+	/**
+	* lists the basemaps which can be used
+	*/
 	// free basemap providers: http://leaflet-extras.github.io/leaflet-providers/preview/index.html
 	var Thunderforest_TransportDark = L.tileLayer('http://{s}.tile.thunderforest.com/transport-dark/{z}/{x}/{y}.png', {
 		attribution: '&copy; <a href="http://www.opencyclemap.org">OpenCycleMap</a>, &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
@@ -38,8 +43,46 @@ function listAvailableBasemaps(){
 	return basemaps;
 }
 function initBaseMap(basemapNr,initLocation){
+	/**
+	* Loads the basemap and shows it on the screen.
+	* The basemapNR is the basemap fetched from listAvailableBasemaps()
+	*/
 	var basemap = listAvailableBasemaps()[basemapNr];
 	var map = L.map('map').setView([initLocation.lat,initLocation.lng],initLocation.zoomLevel);
 	basemap.addTo(map);
 	return map;
+}
+function getValueFromWMS(lat,lng,requestVariable){
+	/**
+	* Does an AJAX request to get the value of a certain location
+	* defined in latitude and longitude (EPSG:4326)
+	* the paramater to be requested is in requestVariable
+	*/
+	bbox = {
+		bottomLat: 	lat-0.001,
+		topLat: 	lat+0.001,
+		leftLng: 	lng-0.001,
+		rightLng: 	lng+0.001
+	}
+	if (requestVariable == "Geluidbelasting_wegen"){
+		var url = "http://geoservice.pbl.nl/arcgis/services/projecten/Geluidbelasting_wegen_2008_Atlas_Leefomgeving/MapServer/WmsServer?\
+		SERVICE=WMS&\
+		VERSION=1.3.0&\
+		REQUEST=GetFeatureInfo&\
+		BBOX="+bbox.bottomLat+","+bbox.leftLng+","+bbox.topLat+","+bbox.rightLng+"&\
+		CRS=EPSG:4326&\
+		WIDTH=300&\
+		HEIGHT=800&\
+		LAYERS=0&\
+		STYLES=default&\
+		FORMAT=image/jpeg&\
+		QUERY_LAYERS=0&\
+		INFO_FORMAT=text/plain\
+		&I=150\
+		&J=400\
+		&FEATURE_COUNT=10";
+	};
+	$.ajax({url: url, success: function(result){
+		console.log(result.split(";")[3]);
+	}});
 }
