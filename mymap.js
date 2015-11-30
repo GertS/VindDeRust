@@ -1,5 +1,15 @@
 $( document ).ready(function() {
     console.log( "ready to execute the code" );
+    var basemapNr = 2;
+    var initLocation = {
+    	lat: 52.3690427,
+    	lng: 4.8960702,
+    	zoomLevel: 13
+    };
+    map = initBaseMap(basemapNr,initLocation);
+});
+
+function listAvailableBasemaps(){
 	// free basemap providers: http://leaflet-extras.github.io/leaflet-providers/preview/index.html
 	var Thunderforest_TransportDark = L.tileLayer('http://{s}.tile.thunderforest.com/transport-dark/{z}/{x}/{y}.png', {
 		attribution: '&copy; <a href="http://www.opencyclemap.org">OpenCycleMap</a>, &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
@@ -24,7 +34,12 @@ $( document ).ready(function() {
 		maxZoom: 19
 	});
 
-	// Showing all the maps:
-	var map = L.map('map').setView([52.3690427,4.8960702],13);
-	Hydda_Full.addTo(map);
-});
+	var basemaps = [Thunderforest_TransportDark,Thunderforest_Landscape,Hydda_Full,Stamen_Toner,CartoDB_DarkMatter];	
+	return basemaps;
+}
+function initBaseMap(basemapNr,initLocation){
+	var basemap = listAvailableBasemaps()[basemapNr];
+	var map = L.map('map').setView([initLocation.lat,initLocation.lng],initLocation.zoomLevel);
+	basemap.addTo(map);
+	return map;
+}
