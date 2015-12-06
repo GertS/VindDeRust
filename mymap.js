@@ -24,14 +24,14 @@ var CartoDB_DarkMatter = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/
 
 // Showing all the maps:
 
-window.onload - function() {
-	var map = L.map('map').setView([51.9167,4.5000],10);
+window.onload = function() {
+	var map = L.map('map').setView([51.9833,5.9070],15);
 
 	// Thunderforest_TransportDark.addTo(map);
 	// Thunderforest_Landscape.addTo(map);
 	Hydda_Full.addTo(map);
 	// Stamen_Toner.addTo(map);
-	// CartoDBoDB_DarkMatter.addTo(map);
+	// CartoDB_DarkMatter.addTo(map);
 
 	var bench = new L.OverPassLayer({
 		query: "node(BBOX)['amenity'='bench'];out;",
