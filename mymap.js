@@ -24,14 +24,20 @@ var CartoDB_DarkMatter = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/
 
 // Showing all the maps:
 
-var map0 = L.map('map0').setView([52.3690427,4.8960702],13);
-var map1 = L.map('map1').setView([52.3690427,4.8960702],13);
-var map2 = L.map('map2').setView([52.3690427,4.8960702],13);
-var map3 = L.map('map3').setView([52.3690427,4.8960702],13);
-var map4 = L.map('map4').setView([52.3690427,4.8960702],13);
+window.onload - function() {
+	var map = L.map('map').setView([51.9167,4.5000],13);
 
-Thunderforest_TransportDark.addTo(map0);
-Thunderforest_Landscape.addTo(map1);
-Hydda_Full.addTo(map2);
-Stamen_Toner.addTo(map3);
-CartoDB_DarkMatter.addTo(map4);
+	// Thunderforest_TransportDark.addTo(map);
+	// Thunderforest_Landscape.addTo(map);
+	Hydda_Full.addTo(map);
+	// Stamen_Toner.addTo(map);
+	// CartoDBoDB_DarkMatter.addTo(map);
+
+	var bench = new L.OverPassLayer({
+		query: "node(BBOX)['amenity'='bench'];out;",
+	});
+
+	map.addLayer(bench);
+
+};
+
