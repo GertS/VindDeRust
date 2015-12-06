@@ -25,7 +25,7 @@ var CartoDB_DarkMatter = L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/
 // Showing all the maps:
 
 window.onload - function() {
-	var map = L.map('map').setView([51.9167,4.5000],13);
+	var map = L.map('map').setView([51.9167,4.5000],10);
 
 	// Thunderforest_TransportDark.addTo(map);
 	// Thunderforest_Landscape.addTo(map);
