@@ -9,6 +9,12 @@ $( document ).ready(function() {
     map = initBaseMap(basemapNr,initLocation);
     var requestVariable = "Geluidbelasting_wegen";
     getValueFromWMS(initLocation.lat,initLocation.lng,requestVariable);
+
+    var bench = new L.OverPassLayer({
+		query: "node(BBOX)['amenity'='bench'];out;",
+	});
+
+	map.addLayer(bench);
 });
 
 function listAvailableBasemaps(){
