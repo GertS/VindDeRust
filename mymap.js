@@ -8,8 +8,18 @@ $( document ).ready(function() {
     };
     map = initBaseMap(basemapNr,initLocation);
     var requestVariable = "Geluidbelasting_wegen";
+    var requestVariable2 = "pot_fijnstof_invang"
     getValueFromWMS(initLocation.lat,initLocation.lng,requestVariable);
-    getBenches();
+    getValueFromWMS(initLocation.lat,initLocation.lng,requestVariable2);
+    
+    var benches = new L.layerGroup();
+    getBenches(map.getBounds(), benches);
+    benches.addTo(map);
+    
+	map.on('moveend', function() {
+    	clearBenches(benches);
+    	getBenches(map.getBounds(), benches);	
+    });
 
 });
 
@@ -83,15 +93,45 @@ function getValueFromWMS(lat,lng,requestVariable){
 		&I=150\
 		&J=400\
 		&FEATURE_COUNT=10";
-	};
-	$.ajax({url: url, success: function(result){
-		console.log(result.split(";")[3]);
-	}});
+		$.ajax({url: url, success: function(result){
+			console.log(result.split(";")[3]);
+		}});
+	}else if (requestVariable == "pot_fijnstof_invang"){ //Cross origin problem
+		var url = "https://crossorigin.me/http://geodata.rivm.nl/geoserver/dank/wms?\
+		SERVICE=WMS&\
+		VERSION=1.3.0&\
+		REQUEST=GetFeatureInfo&\
+		BBOX="+bbox.bottomLat+","+bbox.leftLng+","+bbox.topLat+","+bbox.rightLng+"&\
+		CRS=EPSG:4326&\
+		WIDTH=300&\
+		HEIGHT=800&\
+		LAYERS=altr_a15_gv_lzuifijnstof&\
+		STYLES=altr_a15_20141120_gv_lzuifijnstof&\
+		FORMAT=image/jpeg&\
+		QUERY_LAYERS=altr_a15_gv_lzuifijnstof&\
+		INFO_FORMAT=application/json\
+		&i=150\
+		&j=400\
+		&FEATURE_COUNT=1";
+		$.ajax({url: url,
+			success: function(result){
+				console.log(result.features[0].properties.GRAY_INDEX);
+		}, error: function(errorThrown){
+			console.log(errorThrown);
+		}});
+	}
 }
 
-function getBenches() {
-	$.ajax({
-    	url: 'http://overpass.osm.rambler.ru/cgi/interpreter?data=[out:json];node[amenity=bench](51.9167,4.5000,51.9900,4.5600);out;',
+function getBenches(bbox, layerGroup) {
+	/**
+	* AJAX request to get bench features from OSM Overpass
+	* Conversion from OSM Json to GeoJson
+	**/
+
+
+	* Requires boundingbox from view and a layerGroup
+		.ajax({
+    	url: 'http://overpass.osm.rambler.ru/cgi/interpreter?data=[out:json];node[amenity=bench](' + bbox.getSouthWest().lat + ',' + bbox.getSouthWest().lng + ',' + bbox.getNorthEast().lat + ',' + bbox.getNorthEast().lng + ');out;',
     	dataType: 'json',
     	type: 'GET',
     	async: true,
@@ -100,15 +140,23 @@ function getBenches() {
 	}).done(function(data) {
 		var geo_data = osmtogeojson(data);
 
+
 		$.each(geo_data.features, function(key, feature) {
 			var bench = L.geoJson(feature);
-			bench.addTo(map);
-			console.log(bench);
+			layerGroup.addLayer(bench);
 		});
+		layerGroup.addTo(map);
 	})
 	.fail(function(error) {
     	console.log(error);
     	console.log( "error" );
     });
+}
+
+function clearBenches(layerGroup) {
+	/**
+	* Clears layerGroup with bench features
+	*/
+	map.removeLayer(layerGroup);
 }
 
