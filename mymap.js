@@ -8,8 +8,21 @@ $( document ).ready(function() {
     };
     map = initBaseMap(basemapNr,initLocation);
     var requestVariable = "Geluidbelasting_wegen";
+    var benches = new L.layerGroup();
+
     getValueFromWMS(initLocation.lat,initLocation.lng,requestVariable);
-    getBenches();
+    
+
+    getBenches(map.getBounds(), benches);
+    benches.addTo(map);
+    
+	map.on('moveend', function() {
+    	clearBenches(benches);
+    	getBenches(map.getBounds(), benches);
+    	
+    })
+
+    
 
 });
 
@@ -89,9 +102,15 @@ function getValueFromWMS(lat,lng,requestVariable){
 	}});
 }
 
-function getBenches() {
-	$.ajax({
-    	url: 'http://overpass.osm.rambler.ru/cgi/interpreter?data=[out:json];node[amenity=bench](51.9167,4.5000,51.9900,4.5600);out;',
+function getBenches(bbox, layerGroup) {
+	/**
+	* AJAX request to get bench features from OSM Overpass
+	* Conversion from OSM Json to GeoJson
+
+
+	* Requires boundingbox from view and a layerGroup
+		.ajax({
+    	url: 'http://overpass.osm.rambler.ru/cgi/interpreter?data=[out:json];node[amenity=bench](' + bbox.getSouthWest().lat + ',' + bbox.getSouthWest().lng + ',' + bbox.getNorthEast().lat + ',' + bbox.getNorthEast().lng + ');out;',
     	dataType: 'json',
     	type: 'GET',
     	async: true,
@@ -100,14 +119,22 @@ function getBenches() {
 	}).done(function(data) {
 		var geo_data = osmtogeojson(data);
 
+
 		$.each(geo_data.features, function(key, feature) {
 			var bench = L.geoJson(feature);
-			bench.addTo(map);
-			console.log(bench);
+			layerGroup.addLayer(bench);
 		});
+		layerGroup.addTo(map);
 	})
 	.fail(function(error) {
     	console.log(error);
     	console.log( "error" );
     });
+}
+
+function clearBenches(layerGroup) {
+	/**
+	* Clears layerGroup with bench features
+	*/
+	map.removeLayer(layerGroup);
 }
