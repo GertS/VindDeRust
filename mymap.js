@@ -17,8 +17,8 @@ $( document ).ready(function() {
     benches.addTo(map);
     
 	map.on('moveend', function() {
+    	getBenches(map.getBounds(), benches);
     	clearBenches(benches);
-    	getBenches(map.getBounds(), benches);	
     });
 
 });
