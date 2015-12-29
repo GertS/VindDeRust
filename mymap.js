@@ -126,11 +126,9 @@ function getBenches(bbox, layerGroup) {
 	/**
 	* AJAX request to get bench features from OSM Overpass
 	* Conversion from OSM Json to GeoJson
-	**/
-
-
 	* Requires boundingbox from view and a layerGroup
-		.ajax({
+	**/
+	$.ajax({
     	url: 'http://overpass.osm.rambler.ru/cgi/interpreter?data=[out:json];node[amenity=bench](' + bbox.getSouthWest().lat + ',' + bbox.getSouthWest().lng + ',' + bbox.getNorthEast().lat + ',' + bbox.getNorthEast().lng + ');out;',
     	dataType: 'json',
     	type: 'GET',
