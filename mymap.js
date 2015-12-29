@@ -2,19 +2,15 @@ $( document ).ready(function() {
     console.log( "ready to execute the code" );
     var basemapNr = 2;
     var initLocation = {
-    	lat: 52.3690427,
-    	lng: 4.8960702,
+    	lat: 51.9167,
+    	lng: 4.5000,
     	zoomLevel: 13
     };
     map = initBaseMap(basemapNr,initLocation);
     var requestVariable = "Geluidbelasting_wegen";
     getValueFromWMS(initLocation.lat,initLocation.lng,requestVariable);
+    getBenches();
 
-    var bench = new L.OverPassLayer({
-		query: "node(BBOX)['amenity'='bench'];out;",
-	});
-
-	map.addLayer(bench);
 });
 
 function listAvailableBasemaps(){
@@ -91,4 +87,27 @@ function getValueFromWMS(lat,lng,requestVariable){
 	$.ajax({url: url, success: function(result){
 		console.log(result.split(";")[3]);
 	}});
+}
+
+function getBenches() {
+	$.ajax({
+    	url: 'http://overpass.osm.rambler.ru/cgi/interpreter?data=[out:json];node[amenity=bench](51.9167,4.5000,51.9900,4.5600);out;',
+    	dataType: 'json',
+    	type: 'GET',
+    	async: true,
+    	crossDomain: true
+		
+	}).done(function(data) {
+		var geo_data = osmtogeojson(data);
+
+		$.each(geo_data.features, function(key, feature) {
+			var bench = L.geoJson(feature);
+			bench.addTo(map);
+			console.log(bench);
+		});
+	})
+	.fail(function(error) {
+    	console.log(error);
+    	console.log( "error" );
+    });
 }
