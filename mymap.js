@@ -8,7 +8,9 @@ $( document ).ready(function() {
     };
     map = initBaseMap(basemapNr,initLocation);
     var requestVariable = "Geluidbelasting_wegen";
+    var requestVariable2 = "pot_fijnstof_invang"
     getValueFromWMS(initLocation.lat,initLocation.lng,requestVariable);
+    getValueFromWMS(initLocation.lat,initLocation.lng,requestVariable2);
     getBenches();
 
 });
@@ -83,10 +85,33 @@ function getValueFromWMS(lat,lng,requestVariable){
 		&I=150\
 		&J=400\
 		&FEATURE_COUNT=10";
-	};
-	$.ajax({url: url, success: function(result){
-		console.log(result.split(";")[3]);
-	}});
+		$.ajax({url: url, success: function(result){
+			console.log(result.split(";")[3]);
+		}});
+	}else if (requestVariable == "pot_fijnstof_invang"){ //Cross origin problem
+		var url = "https://crossorigin.me/http://geodata.rivm.nl/geoserver/dank/wms?\
+		SERVICE=WMS&\
+		VERSION=1.3.0&\
+		REQUEST=GetFeatureInfo&\
+		BBOX="+bbox.bottomLat+","+bbox.leftLng+","+bbox.topLat+","+bbox.rightLng+"&\
+		CRS=EPSG:4326&\
+		WIDTH=300&\
+		HEIGHT=800&\
+		LAYERS=altr_a15_gv_lzuifijnstof&\
+		STYLES=altr_a15_20141120_gv_lzuifijnstof&\
+		FORMAT=image/jpeg&\
+		QUERY_LAYERS=altr_a15_gv_lzuifijnstof&\
+		INFO_FORMAT=application/json\
+		&i=150\
+		&j=400\
+		&FEATURE_COUNT=1";
+		$.ajax({url: url,
+			success: function(result){
+				console.log(result.features[0].properties.GRAY_INDEX);
+		}, error: function(errorThrown){
+			console.log(errorThrown);
+		}});
+	}
 }
 
 function getBenches() {
