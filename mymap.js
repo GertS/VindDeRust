@@ -18,7 +18,6 @@ $( document ).ready(function() {
     
 	map.on('moveend', function() {
     	getBenches(map.getBounds(), benches);
-    	clearBenches(benches);
     });
 
 });
@@ -144,6 +143,7 @@ function getBenches(bbox, layerGroup) {
 			layerGroup.addLayer(bench);
 		});
 		layerGroup.addTo(map);
+		clearBenches(benches);
 	})
 	.fail(function(error) {
     	console.log(error);
