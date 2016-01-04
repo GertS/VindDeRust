@@ -20,7 +20,16 @@ $( document ).ready(function() {
     	getBenches(map.getBounds(), benches);
     });
 
+    
+
+    // Icon for benches
+
+
 });
+
+
+
+console.log(benchIcon);
 
 function listAvailableBasemaps(){
 	/**
@@ -139,7 +148,12 @@ function getBenches(bbox, layerGroup) {
 
 
 		$.each(geo_data.features, function(key, feature) {
-			var bench = L.geoJson(feature);
+			var benchIcon = new L.icon({
+			iconUrl: 'icon/Bench-icon.png'
+			
+			});
+
+			var bench = L.geoJson(feature, {pointToLayer: function(feature, latlng){ return L.marker(latlng, {icon: benchIcon});}});
 			layerGroup.addLayer(bench);
 		});
 		layerGroup.addTo(map);
@@ -157,4 +171,7 @@ function clearBenches(layerGroup) {
 	*/
 	map.removeLayer(layerGroup);
 }
+
+
+
 
