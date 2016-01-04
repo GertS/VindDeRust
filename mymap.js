@@ -20,11 +20,6 @@ $( document ).ready(function() {
     	getBenches(map.getBounds(), benches);
     });
 
-    
-
-    // Icon for benches
-
-
 });
 
 
