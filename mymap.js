@@ -149,8 +149,8 @@ function getBenches(bbox, layerGroup) {
 
 		$.each(geo_data.features, function(key, feature) {
 			var benchIcon = new L.icon({
-			iconUrl: 'icon/Bench-icon.png'
-			
+			iconUrl: 'icon/bench_single.png',
+			iconSize: [50,35]
 			});
 
 			var bench = L.geoJson(feature, {pointToLayer: function(feature, latlng){ return L.marker(latlng, {icon: benchIcon});}});
