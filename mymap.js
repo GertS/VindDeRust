@@ -12,19 +12,15 @@ $( document ).ready(function() {
     getValueFromWMS(initLocation.lat,initLocation.lng,requestVariable);
     getValueFromWMS(initLocation.lat,initLocation.lng,requestVariable2);
     
-    var benches = new L.layerGroup();
-    getBenches(map.getBounds(), benches);
-    benches.addTo(map);
-    
+    var benchCluster = L.markerClusterGroup();
+
+    getBenches(map.getBounds(), benchCluster);
+	
 	map.on('moveend', function() {
-    	getBenches(map.getBounds(), benches);
+    	getBenches(map.getBounds(), benchCluster);
     });
 
 });
-
-
-
-console.log(benchIcon);
 
 function listAvailableBasemaps(){
 	/**
@@ -125,10 +121,11 @@ function getValueFromWMS(lat,lng,requestVariable){
 	}
 }
 
-function getBenches(bbox, layerGroup) {
+function getBenches(bbox, clusterGroup) {
 	/**
 	* AJAX request to get bench features from OSM Overpass
 	* Conversion from OSM Json to GeoJson
+	* Clustering of benches
 	* Requires boundingbox from view and a layerGroup
 	**/
 	$.ajax({
@@ -140,31 +137,25 @@ function getBenches(bbox, layerGroup) {
 		
 	}).done(function(data) {
 		var geo_data = osmtogeojson(data);
-
-
+		clusterGroup.clearLayers();
 		$.each(geo_data.features, function(key, feature) {
+			
 			var benchIcon = new L.icon({
 			iconUrl: 'icon/bench_single.png',
 			iconSize: [50,35]
 			});
 
-			var bench = L.geoJson(feature, {pointToLayer: function(feature, latlng){ return L.marker(latlng, {icon: benchIcon});}});
-			layerGroup.addLayer(bench);
+			var marker = L.marker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], {icon: benchIcon});
+			clusterGroup.addLayer(marker);
+			map.addLayer(clusterGroup);
 		});
-		layerGroup.addTo(map);
-		clearBenches(benches);
+		map.addLayer(clusterGroup);
+		
 	})
 	.fail(function(error) {
     	console.log(error);
     	console.log( "error" );
     });
-}
-
-function clearBenches(layerGroup) {
-	/**
-	* Clears layerGroup with bench features
-	*/
-	map.removeLayer(layerGroup);
 }
 
 
