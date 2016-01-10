@@ -129,7 +129,7 @@ function getValueFromWMS(lat,lng,requestVariable){
 		$.ajax({url: url,
 			success: function(result){
 				value = parseFloat(result.features[0].properties.GRAY_INDEX);
-				console.log(value);
+				// console.log(value);
 				if (value > 36){
 					var marker = L.marker([lat,lng],{icon:leafIconLarge}).addTo(map);
 				}else if (value > 0){
@@ -208,4 +208,11 @@ var leafIconLarge = new L.icon({
 	iconUrl: 'icon/leaf.png',
 	iconSize: [40,20],
 	iconAnchor:   [-10, 0] //positioning
+});
+
+$body = $("body");
+
+$(document).on({
+    ajaxStart: function() { $body.addClass("loading");    },
+     ajaxStop: function() { $body.removeClass("loading"); }    
 });
