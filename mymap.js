@@ -16,6 +16,12 @@ $( document ).ready(function() {
 
     getBenches(map.getBounds(), benchCluster);
 	
+	map.on('click', function(e) {
+		// console.log(e);
+		getValueFromWMS(e.latlng.lat,e.latlng.lng,"Geluidbelasting_wegen");
+		getValueFromWMS(e.latlng.lat,e.latlng.lng,"pot_fijnstof_invang");
+    });
+
 	map.on('moveend', function() {
     	getBenches(map.getBounds(), benchCluster);
     });
@@ -63,7 +69,7 @@ function initBaseMap(basemapNr,initLocation){
 	basemap.addTo(map);
 	return map;
 }
-function getValueFromWMS(lat,lng,requestVariable,clusterGroup){
+function getValueFromWMS(lat,lng,requestVariable){
 	/**
 	* Does an AJAX request to get the value of a certain location
 	* defined in latitude and longitude (EPSG:4326)
@@ -183,8 +189,8 @@ function getParamFromClusters(clusterGroup) {
 		cgLng = feature._latlng.lng;
 		// var marker = L.marker([feature._latlng.lat,feature._latlng.lng]).addTo(map);
 		// console.log(feature._latlng);
-		// getValueFromWMS(cgLat,cgLng,"Geluidbelasting_wegen",clusterGroup);
-		getValueFromWMS(cgLat,cgLng,"pot_fijnstof_invang",clusterGroup);
+		getValueFromWMS(cgLat,cgLng,"Geluidbelasting_wegen");
+		getValueFromWMS(cgLat,cgLng,"pot_fijnstof_invang");
 	});
 }
 
