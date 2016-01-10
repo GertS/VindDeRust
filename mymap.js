@@ -9,8 +9,8 @@ $( document ).ready(function() {
     map = initBaseMap(basemapNr,initLocation);
     var requestVariable = "Geluidbelasting_wegen";
     var requestVariable2 = "pot_fijnstof_invang"
-    getValueFromWMS(initLocation.lat,initLocation.lng,requestVariable);
-    getValueFromWMS(initLocation.lat,initLocation.lng,requestVariable2);
+    // getValueFromWMS(initLocation.lat,initLocation.lng,requestVariable);
+    // getValueFromWMS(initLocation.lat,initLocation.lng,requestVariable2);
     
     var benchCluster = L.markerClusterGroup();
 
@@ -63,7 +63,7 @@ function initBaseMap(basemapNr,initLocation){
 	basemap.addTo(map);
 	return map;
 }
-function getValueFromWMS(lat,lng,requestVariable){
+function getValueFromWMS(lat,lng,requestVariable,clusterGroup){
 	/**
 	* Does an AJAX request to get the value of a certain location
 	* defined in latitude and longitude (EPSG:4326)
@@ -94,9 +94,12 @@ function getValueFromWMS(lat,lng,requestVariable){
 		&FEATURE_COUNT=10";
 		$.ajax({url: url, success: function(result){
 			value = result.split(";")[3];
-			console.log(value);
+			// console.log(value);
 			if (parseFloat(value) > 55.0){
-				var marker = L.marker([lat,lng],{icon:speakerIcon}).addTo(map);
+				var marker = L.marker([lat,lng],{icon:speakerIcon}).addTo(map).bindPopup("geluid van wegen: "+ parseInt(value)+"dB");
+				// var marker = L.marker([lat,lng],{icon:speakerIcon});
+				// clusterGroup.addLayer(marker);
+				// map.addLayer(clusterGroup);
 			}
 			// var marker = L.marker([lat,lng]).addTo(map).bindPopup(value+"dB");
 		}});
@@ -119,7 +122,13 @@ function getValueFromWMS(lat,lng,requestVariable){
 		&FEATURE_COUNT=1";
 		$.ajax({url: url,
 			success: function(result){
-				console.log(result.features[0].properties.GRAY_INDEX);
+				value = parseFloat(result.features[0].properties.GRAY_INDEX);
+				console.log(value);
+				if (value > 36){
+					var marker = L.marker([lat,lng],{icon:leafIconLarge}).addTo(map);
+				}else if (value > 0){
+					var marker = L.marker([lat,lng],{icon:leafIconSmall}).addTo(map);
+				}				
 		}, error: function(errorThrown){
 			console.log(errorThrown);
 		}});
@@ -174,8 +183,8 @@ function getParamFromClusters(clusterGroup) {
 		cgLng = feature._latlng.lng;
 		// var marker = L.marker([feature._latlng.lat,feature._latlng.lng]).addTo(map);
 		// console.log(feature._latlng);
-		getValueFromWMS(cgLat,cgLng,"Geluidbelasting_wegen");
-		getValueFromWMS(cgLat,cgLng,"pot_fijnstof_invang");
+		// getValueFromWMS(cgLat,cgLng,"Geluidbelasting_wegen",clusterGroup);
+		getValueFromWMS(cgLat,cgLng,"pot_fijnstof_invang",clusterGroup);
 	});
 }
 
@@ -183,4 +192,14 @@ var speakerIcon = new L.icon({
 	iconUrl: 'icon/loudspeaker.png',
 	iconSize: [20,20],
 	iconAnchor:   [-10, 10] //positioning
+});
+var leafIconSmall = new L.icon({
+	iconUrl: 'icon/leaf.png',
+	iconSize: [25,10],
+	iconAnchor:   [-10, 0] //positioning
+});
+var leafIconLarge = new L.icon({
+	iconUrl: 'icon/leaf.png',
+	iconSize: [40,20],
+	iconAnchor:   [-10, 0] //positioning
 });
