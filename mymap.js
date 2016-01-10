@@ -9,13 +9,19 @@ $( document ).ready(function() {
     map = initBaseMap(basemapNr,initLocation);
     var requestVariable = "Geluidbelasting_wegen";
     var requestVariable2 = "pot_fijnstof_invang"
-    getValueFromWMS(initLocation.lat,initLocation.lng,requestVariable);
-    getValueFromWMS(initLocation.lat,initLocation.lng,requestVariable2);
+    // getValueFromWMS(initLocation.lat,initLocation.lng,requestVariable);
+    // getValueFromWMS(initLocation.lat,initLocation.lng,requestVariable2);
     
     var benchCluster = L.markerClusterGroup();
 
     getBenches(map.getBounds(), benchCluster);
 	
+	map.on('click', function(e) {
+		// console.log(e);
+		getValueFromWMS(e.latlng.lat,e.latlng.lng,"Geluidbelasting_wegen");
+		getValueFromWMS(e.latlng.lat,e.latlng.lng,"pot_fijnstof_invang");
+    });
+
 	map.on('moveend', function() {
     	getBenches(map.getBounds(), benchCluster);
     });
@@ -93,7 +99,15 @@ function getValueFromWMS(lat,lng,requestVariable){
 		&J=400\
 		&FEATURE_COUNT=10";
 		$.ajax({url: url, success: function(result){
-			console.log(result.split(";")[3]);
+			value = result.split(";")[3];
+			// console.log(value);
+			if (parseFloat(value) > 55.0){
+				var marker = L.marker([lat,lng],{icon:speakerIcon}).addTo(map).bindPopup("geluid van wegen: "+ parseInt(value)+"dB");
+				// var marker = L.marker([lat,lng],{icon:speakerIcon});
+				// clusterGroup.addLayer(marker);
+				// map.addLayer(clusterGroup);
+			}
+			// var marker = L.marker([lat,lng]).addTo(map).bindPopup(value+"dB");
 		}});
 	}else if (requestVariable == "pot_fijnstof_invang"){ //Cross origin problem
 		var url = "https://crossorigin.me/http://geodata.rivm.nl/geoserver/dank/wms?\
@@ -114,7 +128,13 @@ function getValueFromWMS(lat,lng,requestVariable){
 		&FEATURE_COUNT=1";
 		$.ajax({url: url,
 			success: function(result){
-				console.log(result.features[0].properties.GRAY_INDEX);
+				value = parseFloat(result.features[0].properties.GRAY_INDEX);
+				// console.log(value);
+				if (value > 36){
+					var marker = L.marker([lat,lng],{icon:leafIconLarge}).addTo(map);
+				}else if (value > 0){
+					var marker = L.marker([lat,lng],{icon:leafIconSmall}).addTo(map);
+				}				
 		}, error: function(errorThrown){
 			console.log(errorThrown);
 		}});
@@ -147,9 +167,10 @@ function getBenches(bbox, clusterGroup) {
 
 			var marker = L.marker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], {icon: benchIcon});
 			clusterGroup.addLayer(marker);
-			map.addLayer(clusterGroup);
+			// map.addLayer(clusterGroup);
 		});
 		map.addLayer(clusterGroup);
+		getParamFromClusters(clusterGroup);
 		
 	})
 	.fail(function(error) {
@@ -158,6 +179,40 @@ function getBenches(bbox, clusterGroup) {
     });
 }
 
+function getParamFromClusters(clusterGroup) {
+	/**
+	* AJAX request to get road noise and greenness of the center of the cluster groups
+	**/
+	cg = clusterGroup._featureGroup.getLayers();
+	$.each(cg, function(key,feature) {
+		cgLat = feature._latlng.lat;
+		cgLng = feature._latlng.lng;
+		// var marker = L.marker([feature._latlng.lat,feature._latlng.lng]).addTo(map);
+		// console.log(feature._latlng);
+		getValueFromWMS(cgLat,cgLng,"Geluidbelasting_wegen");
+		getValueFromWMS(cgLat,cgLng,"pot_fijnstof_invang");
+	});
+}
 
+var speakerIcon = new L.icon({
+	iconUrl: 'icon/loudspeaker.png',
+	iconSize: [20,20],
+	iconAnchor:   [-10, 10] //positioning
+});
+var leafIconSmall = new L.icon({
+	iconUrl: 'icon/leaf.png',
+	iconSize: [25,10],
+	iconAnchor:   [-10, 0] //positioning
+});
+var leafIconLarge = new L.icon({
+	iconUrl: 'icon/leaf.png',
+	iconSize: [40,20],
+	iconAnchor:   [-10, 0] //positioning
+});
 
+$body = $("body");
 
+$(document).on({
+    ajaxStart: function() { $body.addClass("loading");    },
+     ajaxStop: function() { $body.removeClass("loading"); }    
+});
