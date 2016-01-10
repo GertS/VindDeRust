@@ -147,9 +147,10 @@ function getBenches(bbox, clusterGroup) {
 
 			var marker = L.marker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], {icon: benchIcon});
 			clusterGroup.addLayer(marker);
-			map.addLayer(clusterGroup);
+			// map.addLayer(clusterGroup);
 		});
 		map.addLayer(clusterGroup);
+		getParamFromClusters(clusterGroup);
 		
 	})
 	.fail(function(error) {
@@ -158,6 +159,13 @@ function getBenches(bbox, clusterGroup) {
     });
 }
 
-
-
-
+function getParamFromClusters(clusterGroup) {
+	/**
+	* AJAX request to get road noise and greenness of the center of the cluster groups
+	**/
+	cg = clusterGroup._featureGroup.getLayers();
+	$.each(cg, function(key,feature) {
+		var marker = L.marker([feature._latlng.lat,feature._latlng.lng]).addTo(map);
+		console.log(feature._latlng);
+	});
+}
