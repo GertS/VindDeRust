@@ -93,7 +93,12 @@ function getValueFromWMS(lat,lng,requestVariable){
 		&J=400\
 		&FEATURE_COUNT=10";
 		$.ajax({url: url, success: function(result){
-			console.log(result.split(";")[3]);
+			value = result.split(";")[3];
+			console.log(value);
+			if (parseFloat(value) > 55.0){
+				var marker = L.marker([lat,lng],{icon:speakerIcon}).addTo(map);
+			}
+			// var marker = L.marker([lat,lng]).addTo(map).bindPopup(value+"dB");
 		}});
 	}else if (requestVariable == "pot_fijnstof_invang"){ //Cross origin problem
 		var url = "https://crossorigin.me/http://geodata.rivm.nl/geoserver/dank/wms?\
@@ -165,7 +170,17 @@ function getParamFromClusters(clusterGroup) {
 	**/
 	cg = clusterGroup._featureGroup.getLayers();
 	$.each(cg, function(key,feature) {
-		var marker = L.marker([feature._latlng.lat,feature._latlng.lng]).addTo(map);
-		console.log(feature._latlng);
+		cgLat = feature._latlng.lat;
+		cgLng = feature._latlng.lng;
+		// var marker = L.marker([feature._latlng.lat,feature._latlng.lng]).addTo(map);
+		// console.log(feature._latlng);
+		getValueFromWMS(cgLat,cgLng,"Geluidbelasting_wegen");
+		getValueFromWMS(cgLat,cgLng,"pot_fijnstof_invang");
 	});
 }
+
+var speakerIcon = new L.icon({
+	iconUrl: 'icon/loudspeaker.png',
+	iconSize: [20,20],
+	iconAnchor:   [-10, 10] //positioning
+});
