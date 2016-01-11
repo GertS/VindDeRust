@@ -85,20 +85,14 @@ function initBaseMap(basemapNr,initLocation){
 	basemap.addTo(map);
 	return map;
 }
-function getValueFromWMS(lat,lng,requestVariable){
-	/**
-	* Does an AJAX request to get the value of a certain location
-	* defined in latitude and longitude (EPSG:4326)
-	* the paramater to be requested is in requestVariable
-	*/
+function asyncWMSreq1(lat,lng,benchesCount){
 	bbox = {
 		bottomLat: 	lat-0.001,
 		topLat: 	lat+0.001,
 		leftLng: 	lng-0.001,
 		rightLng: 	lng+0.001
 	}
-	if (requestVariable == "Geluidbelasting_wegen"){
-		var url = "http://geoservice.pbl.nl/arcgis/services/projecten/Geluidbelasting_wegen_2008_Atlas_Leefomgeving/MapServer/WmsServer?\
+	var url = "http://geoservice.pbl.nl/arcgis/services/projecten/Geluidbelasting_wegen_2008_Atlas_Leefomgeving/MapServer/WmsServer?\
 		SERVICE=WMS&\
 		VERSION=1.3.0&\
 		REQUEST=GetFeatureInfo&\
@@ -114,6 +108,72 @@ function getValueFromWMS(lat,lng,requestVariable){
 		&I=150\
 		&J=400\
 		&FEATURE_COUNT=10";
+	$.ajax({url: url, success: function(result){
+		value = result.split(";")[3];
+		asyncWMSreq2(lat,lng,benchesCount,parseFloat(value));
+	}});	
+}
+function asyncWMSreq2(lat,lng,benchesCount,roadDB){
+	bbox = {
+		bottomLat: 	lat-0.001,
+		topLat: 	lat+0.001,
+		leftLng: 	lng-0.001,
+		rightLng: 	lng+0.001
+	}
+	var url = "https://crossorigin.me/http://geodata.rivm.nl/geoserver/dank/wms?\
+		SERVICE=WMS&\
+		VERSION=1.3.0&\
+		REQUEST=GetFeatureInfo&\
+		BBOX="+bbox.bottomLat+","+bbox.leftLng+","+bbox.topLat+","+bbox.rightLng+"&\
+		CRS=EPSG:4326&\
+		WIDTH=300&\
+		HEIGHT=800&\
+		LAYERS=altr_a15_gv_lzuifijnstof&\
+		STYLES=altr_a15_20141120_gv_lzuifijnstof&\
+		FORMAT=image/jpeg&\
+		QUERY_LAYERS=altr_a15_gv_lzuifijnstof&\
+		INFO_FORMAT=application/json\
+		&i=150\
+		&j=400\
+		&FEATURE_COUNT=1";
+	$.ajax({url: url,
+		success: function(result){
+			value = parseFloat(result.features[0].properties.GRAY_INDEX);
+			createMarker(lat,lng,benchesCount,roadDB,value);			
+	}, error: function(errorThrown){
+		console.log(errorThrown);
+	}});
+
+}
+function getValueFromWMS(lat,lng,requestVariable){
+	/**
+	* Does an AJAX request to get the value of a certain location
+	* defined in latitude and longitude (EPSG:4326)
+	* the paramater to be requested is in requestVariable
+	*/
+	bbox = {
+		bottomLat: 	lat-0.001,
+		topLat: 	lat+0.001,
+		leftLng: 	lng-0.001,
+		rightLng: 	lng+0.001
+	}
+	if (requestVariable == "Geluidbelasting_wegen"){
+		var url = "http://geoservice.pbl.nl/arcgis/services/projecten/Geluidbelasting_wegen_2008_Atlas_Leefomgeving/MapServer/WmsServer?\
+			SERVICE=WMS&\
+			VERSION=1.3.0&\
+			REQUEST=GetFeatureInfo&\
+			BBOX="+bbox.bottomLat+","+bbox.leftLng+","+bbox.topLat+","+bbox.rightLng+"&\
+			CRS=EPSG:4326&\
+			WIDTH=300&\
+			HEIGHT=800&\
+			LAYERS=0&\
+			STYLES=default&\
+			FORMAT=image/jpeg&\
+			QUERY_LAYERS=0&\
+			INFO_FORMAT=text/plain\
+			&I=150\
+			&J=400\
+			&FEATURE_COUNT=10";
 		$.ajax({url: url, success: function(result){
 			value = result.split(";")[3];
 			// console.log(value);
@@ -173,6 +233,7 @@ function getBenches(bbox, clusterGroup) {
 		
 	}).done(function(data) {
 		var geo_data = osmtogeojson(data);
+		console.log(geo_data);
 		clusterGroup.clearLayers();
 		$.each(geo_data.features, function(key, feature) {
 			
@@ -186,6 +247,7 @@ function getBenches(bbox, clusterGroup) {
 			// map.addLayer(clusterGroup);
 		});
 		map.addLayer(clusterGroup);
+		// console.log("test");
 		getParamFromClusters(clusterGroup);
 		
 	})
@@ -200,14 +262,28 @@ function getParamFromClusters(clusterGroup) {
 	* AJAX request to get road noise and greenness of the center of the cluster groups
 	**/
 	cg = clusterGroup._featureGroup.getLayers();
+	console.log(cg);
 	$.each(cg, function(key,feature) {
 		cgLat = feature._latlng.lat;
 		cgLng = feature._latlng.lng;
+		cgCount=feature._childCount;
 		// var marker = L.marker([feature._latlng.lat,feature._latlng.lng]).addTo(map);
 		// console.log(feature._latlng);
-		getValueFromWMS(cgLat,cgLng,"Geluidbelasting_wegen");
-		getValueFromWMS(cgLat,cgLng,"pot_fijnstof_invang");
+		console.log("benches: ",cgCount);
+		asyncWMSreq1(cgLat,cgLng,cgCount);
+		// getValueFromWMS(cgLat,cgLng,"Geluidbelasting_wegen");
+		// getValueFromWMS(cgLat,cgLng,"pot_fijnstof_invang");
 	});
+}
+
+function createMarker(lat,lng,benchesCount,roadDB,greennessIndex){
+	if (greennessIndex > 0){
+		var size = (benchesCount/100)*20+(roadDB*5)+greennessIndex*1
+	}else{
+		var size = (benchesCount/100)*20+(roadDB*5)
+	}
+	console.log(size);
+	L.circle([lat,lng],size,'green').addTo(map);
 }
 
 // Icons:
