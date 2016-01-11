@@ -15,16 +15,13 @@ body {
    our animation centered, and no-repeating */
 .modal {
     display:    none;
-    position:   fixed;
-    z-index:    1000;
-    top:        0;
-    left:       0;
-    height:     100%;
-    width:      100%;
-    background: rgba( 255, 255, 255, .8 ) 
-                url('http://i.stack.imgur.com/FhHRx.gif') 
-                50% 50% 
-                no-repeat;
+	position: absolute;
+    z-index: 1000;
+    top: 30px;
+    left: 55px;
+    height: 50px;
+    width: 50px;
+    background: url('icon/loading.gif') no-repeat;
 }
 
 /* When the body has the loading class, we turn
