@@ -1,5 +1,6 @@
 $( document ).ready(function() {
     console.log( "ready to execute the code" );
+    var timeoutHandler;
     var basemapNr = 2;
     var initLocation = {
     	lat: 51.9167,
@@ -22,11 +23,25 @@ $( document ).ready(function() {
 		getValueFromWMS(e.latlng.lat,e.latlng.lng,"pot_fijnstof_invang");
     });
 
-	map.on('moveend', function() {
-    	getBenches(map.getBounds(), benchCluster);
-    });
 
+	// Functions for timout between start draging and zooming and starting of ajax request.
+    function mapMoveHandler() {
+		// cancel any timeout currently running
+		window.clearTimeout(timeoutHandler);
+		// create new timeout to fire sesarch function after 750ms
+		timeoutHandler = window.setTimeout(function() {
+			getBenches(map.getBounds(), benchCluster);
+		}, 750);
+	}
+	function mapDragHandler() {
+		// cancel any timeout currently running
+		window.clearTimeout(timeoutHandler);
+	}
+
+	map.on('moveend', mapMoveHandler);
+	map.on('drag', mapDragHandler);
 });
+
 
 function listAvailableBasemaps(){
 	/**
@@ -214,5 +229,5 @@ $body = $("body");
 
 $(document).on({
     ajaxStart: function() { $body.addClass("loading");    },
-     ajaxStop: function() { $body.removeClass("loading"); }    
+    ajaxStop: function() { $body.removeClass("loading"); }    
 });
