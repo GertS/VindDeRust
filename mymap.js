@@ -19,6 +19,7 @@ $( document ).ready(function() {
 	
 	map.on('click', function(e) {
 		// console.log(e);
+		var marker = L.marker([e.latlng.lat,e.latlng.lng],{icon:dotIcon}).addTo(map);
 		getValueFromWMS(e.latlng.lat,e.latlng.lng,"Geluidbelasting_wegen");
 		getValueFromWMS(e.latlng.lat,e.latlng.lng,"pot_fijnstof_invang");
     });
@@ -209,6 +210,8 @@ function getParamFromClusters(clusterGroup) {
 	});
 }
 
+// Icons:
+
 var speakerIcon = new L.icon({
 	iconUrl: 'icon/loudspeaker.png',
 	iconSize: [20,20],
@@ -224,7 +227,14 @@ var leafIconLarge = new L.icon({
 	iconSize: [40,20],
 	iconAnchor:   [-10, 0] //positioning
 });
+var dotIcon = new L.icon({
+	iconUrl: 'icon/dot.png',
+	iconSize: [10,10],
+	iconAnchor:   [5, 5] //positioning
+});
 
+
+// spinner stuff:
 $body = $("body");
 
 $(document).on({
