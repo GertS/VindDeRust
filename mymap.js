@@ -181,11 +181,45 @@ function getBenches(bbox, clusterGroup) {
 			iconSize: [50,35]
 			});
 
-			var marker = L.marker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], {icon: benchIcon});
+			var marker = L.marker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], {opacity: 0.0});
 			clusterGroup.addLayer(marker);
 			// map.addLayer(clusterGroup);
 		});
-		map.addLayer(clusterGroup);
+		// map.addLayer(clusterGroup,{opacity:0.5});
+		/////////////////////
+		//Get markerclusters:
+		/////////////////////
+		clusterGroup._map = map;
+		var i, l, layer;
+		if (!isFinite(clusterGroup._map.getMaxZoom())) {
+			throw "Map has no maxZoom specified";
+		}
+		// clusterGroup._featureGroup.onAdd(map);
+		// clusterGroup._nonPointGroup.onAdd(map);
+		if (!clusterGroup._gridClusters) {
+			clusterGroup._generateInitialClusters();
+		}
+				for (i = 0, l = clusterGroup._needsRemoving.length; i < l; i++) {
+			layer = clusterGroup._needsRemoving[i];
+			clusterGroup._removeLayer(layer, true);
+		}
+		clusterGroup._needsRemoving = [];
+		clusterGroup._zoom = clusterGroup._map.getZoom();
+		clusterGroup._currentShownBounds = clusterGroup._getExpandedVisibleBounds();
+
+		// clusterGroup._map.on('zoomend', clusterGroup._zoomEnd, clusterGroup);
+		// clusterGroup._map.on('moveend', clusterGroup._moveEnd, clusterGroup);
+
+		if (clusterGroup._spiderfierOnAdd) { //TODO FIXME: Not sure how to have spiderfier add something on here nicely
+			clusterGroup._spiderfierOnAdd();
+		}
+		clusterGroup._bindEvents();
+
+		l = clusterGroup._needsClustering;
+		clusterGroup._needsClustering = [];
+		clusterGroup.addLayers(l);
+
+
 		getParamFromClusters(clusterGroup);
 		
 	})
@@ -204,7 +238,7 @@ function getParamFromClusters(clusterGroup) {
 		cgLat = feature._latlng.lat;
 		cgLng = feature._latlng.lng;
 		// var marker = L.marker([feature._latlng.lat,feature._latlng.lng]).addTo(map);
-		// console.log(feature._latlng);
+		console.log(feature._latlng);
 		getValueFromWMS(cgLat,cgLng,"Geluidbelasting_wegen");
 		getValueFromWMS(cgLat,cgLng,"pot_fijnstof_invang");
 	});
