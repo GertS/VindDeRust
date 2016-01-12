@@ -19,6 +19,7 @@ $( document ).ready(function() {
 	
 	map.on('click', function(e) {
 		// console.log(e);
+		var marker = L.marker([e.latlng.lat,e.latlng.lng],{icon:dotIcon}).addTo(map);
 		getValueFromWMS(e.latlng.lat,e.latlng.lng,"Geluidbelasting_wegen");
 		getValueFromWMS(e.latlng.lat,e.latlng.lng,"pot_fijnstof_invang");
     });
@@ -115,13 +116,14 @@ function getValueFromWMS(lat,lng,requestVariable){
 		&FEATURE_COUNT=10";
 		$.ajax({url: url, success: function(result){
 			value = result.split(";")[3];
+			addMarker("roadNoise",value,lat,lng);
 			// console.log(value);
-			if (parseFloat(value) > 55.0){
-				var marker = L.marker([lat,lng],{icon:speakerIcon}).addTo(map).bindPopup("geluid van wegen: "+ parseInt(value)+"dB");
-				// var marker = L.marker([lat,lng],{icon:speakerIcon});
-				// clusterGroup.addLayer(marker);
-				// map.addLayer(clusterGroup);
-			}
+			// if (parseFloat(value) > 55.0){
+			// 	var marker = L.marker([lat,lng],{icon:speakerIcon}).addTo(map).bindPopup("geluid van wegen: "+ parseInt(value)+"dB");
+			// 	// var marker = L.marker([lat,lng],{icon:speakerIcon});
+			// 	// clusterGroup.addLayer(marker);
+			// 	// map.addLayer(clusterGroup);
+			// }
 			// var marker = L.marker([lat,lng]).addTo(map).bindPopup(value+"dB");
 		}});
 	}else if (requestVariable == "pot_fijnstof_invang"){ //Cross origin problem
@@ -144,12 +146,13 @@ function getValueFromWMS(lat,lng,requestVariable){
 		$.ajax({url: url,
 			success: function(result){
 				value = parseFloat(result.features[0].properties.GRAY_INDEX);
+				addMarker("fijnstofGroen",value,lat,lng);
 				// console.log(value);
-				if (value > 36){
-					var marker = L.marker([lat,lng],{icon:leafIconLarge}).addTo(map);
-				}else if (value > 0){
-					var marker = L.marker([lat,lng],{icon:leafIconSmall}).addTo(map);
-				}				
+				// if (value > 36){
+				// 	var marker = L.marker([lat,lng],{icon:leafIconLarge}).addTo(map);
+				// }else if (value > 0){
+				// 	var marker = L.marker([lat,lng],{icon:leafIconSmall}).addTo(map);
+				// }				
 		}, error: function(errorThrown){
 			console.log(errorThrown);
 		}});
@@ -180,11 +183,45 @@ function getBenches(bbox, clusterGroup) {
 			iconSize: [50,35]
 			});
 
-			var marker = L.marker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], {icon: benchIcon});
+			var marker = L.marker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], {opacity: 0.0});
 			clusterGroup.addLayer(marker);
 			// map.addLayer(clusterGroup);
 		});
-		map.addLayer(clusterGroup);
+		// map.addLayer(clusterGroup,{opacity:0.5});
+		/////////////////////
+		//Get markerclusters:
+		/////////////////////
+		clusterGroup._map = map;
+		var i, l, layer;
+		if (!isFinite(clusterGroup._map.getMaxZoom())) {
+			throw "Map has no maxZoom specified";
+		}
+		// clusterGroup._featureGroup.onAdd(map);
+		// clusterGroup._nonPointGroup.onAdd(map);
+		if (!clusterGroup._gridClusters) {
+			clusterGroup._generateInitialClusters();
+		}
+				for (i = 0, l = clusterGroup._needsRemoving.length; i < l; i++) {
+			layer = clusterGroup._needsRemoving[i];
+			clusterGroup._removeLayer(layer, true);
+		}
+		clusterGroup._needsRemoving = [];
+		clusterGroup._zoom = clusterGroup._map.getZoom();
+		clusterGroup._currentShownBounds = clusterGroup._getExpandedVisibleBounds();
+
+		// clusterGroup._map.on('zoomend', clusterGroup._zoomEnd, clusterGroup);
+		// clusterGroup._map.on('moveend', clusterGroup._moveEnd, clusterGroup);
+
+		if (clusterGroup._spiderfierOnAdd) { //TODO FIXME: Not sure how to have spiderfier add something on here nicely
+			clusterGroup._spiderfierOnAdd();
+		}
+		clusterGroup._bindEvents();
+
+		l = clusterGroup._needsClustering;
+		clusterGroup._needsClustering = [];
+		clusterGroup.addLayers(l);
+
+
 		getParamFromClusters(clusterGroup);
 		
 	})
@@ -202,12 +239,54 @@ function getParamFromClusters(clusterGroup) {
 	$.each(cg, function(key,feature) {
 		cgLat = feature._latlng.lat;
 		cgLng = feature._latlng.lng;
+		cgCount=feature._childCount; //Benches per cluster
 		// var marker = L.marker([feature._latlng.lat,feature._latlng.lng]).addTo(map);
+		// console.log(cgCount);
 		// console.log(feature._latlng);
+		addMarker("bench",cgCount,cgLat,cgLng);
 		getValueFromWMS(cgLat,cgLng,"Geluidbelasting_wegen");
 		getValueFromWMS(cgLat,cgLng,"pot_fijnstof_invang");
 	});
 }
+
+function addMarker(variable,value,lat,lng){
+	if (variable == "bench"){
+		iconName = 'zitten';
+		// iconName = 'bankje';
+		if(value < 5 || typeof value === 'undefined'){
+			iconName += 'S';
+		}else if(value < 15){
+			iconName += 'M';
+		}else{
+			iconName += 'L';
+		}
+	}
+	if (variable == "roadNoise"){
+		iconName = 'stilte';
+		if(value > 55 ){
+			iconName += 'S';
+		}else if(value > 40){
+			iconName += 'M';
+		}else{
+			iconName += 'L';
+		}
+	}
+	if (variable == "fijnstofGroen"){
+		iconName = 'groen';
+		if(value < 0 ){
+			iconName += 'S';
+		}else if(value < 38){
+			iconName += 'M';
+		}else{
+			iconName += 'L';
+		}
+	}
+	// iconName = 'bankjeS';
+	console.log(iconName, value);
+	L.marker([lat,lng],{icon:window[iconName]}).addTo(map);
+}
+
+// Icons:
 
 var speakerIcon = new L.icon({
 	iconUrl: 'icon/loudspeaker.png',
@@ -224,7 +303,92 @@ var leafIconLarge = new L.icon({
 	iconSize: [40,20],
 	iconAnchor:   [-10, 0] //positioning
 });
+var dotIcon = new L.icon({
+	iconUrl: 'icon/dot.png',
+	iconSize: [10,10],
+	iconAnchor:   [5, 5] //positioning
+});
 
+var smallPixels = 30;
+var mediumPixels= 50;
+var largePixels = 70;
+
+var zittenPosX = +10;
+var zittenPosY = +0;
+var bankjePosX = +10;
+var bankjePosY = +0;
+var groenPosX = -10;
+var groenPosY = +0;
+var stiltePosX = -5;
+var stiltePosY = +10;
+
+//New Icons:
+//Zitten:
+var zittenS = new L.icon({ //zitten small
+	iconUrl: 'icon/zitten.png',
+	iconSize: [smallPixels,smallPixels],
+	iconAnchor:   [zittenPosX+(0.5*smallPixels), zittenPosY+(0.5*smallPixels)] //positioning
+});
+var zittenM = new L.icon({ //zitten medium
+	iconUrl: 'icon/zitten.png',
+	iconSize: [mediumPixels,mediumPixels],
+	iconAnchor:   [zittenPosX+(0.5*mediumPixels), zittenPosY+(0.5*mediumPixels)] //positioning
+});
+var zittenL = new L.icon({ //zitten large
+	iconUrl: 'icon/zitten.png',
+	iconSize: [largePixels,largePixels],
+	iconAnchor:   [zittenPosX+(0.5*largePixels), zittenPosY+(0.5*largePixels)] //positioning
+});
+//Bankje:
+var bankjeS = new L.icon({ //bankje small
+	iconUrl: 'icon/bankje.png',
+	iconSize: [smallPixels,smallPixels],
+	iconAnchor:   [bankjePosX+(0.5*smallPixels), bankjePosY+(0.5*smallPixels)] //positioning
+});
+var bankjeM = new L.icon({ //bankje medium
+	iconUrl: 'icon/bankje.png',
+	iconSize: [mediumPixels,mediumPixels],
+	iconAnchor:   [bankjePosX+(0.5*mediumPixels), bankjePosY+(0.5*mediumPixels)] //positioning
+});
+var bankjeL = new L.icon({ //bankje large
+	iconUrl: 'icon/bankje.png',
+	iconSize: [largePixels,largePixels],
+	iconAnchor:   [bankjePosX+(0.5*largePixels), bankjePosY+(0.5*largePixels)] //positioning
+});
+//Groen:
+var groenS = new L.icon({ //groen small
+	iconUrl: 'icon/groen.png',
+	iconSize: [smallPixels,smallPixels],
+	iconAnchor:   [groenPosX+(0.5*smallPixels), groenPosY+(0.5*smallPixels)] //positioning
+});
+var groenM = new L.icon({ //groen medium
+	iconUrl: 'icon/groen.png',
+	iconSize: [mediumPixels,mediumPixels],
+	iconAnchor:   [groenPosX+(0.5*mediumPixels), groenPosY+(0.5*mediumPixels)] //positioning
+});
+var groenL = new L.icon({ //groen large
+	iconUrl: 'icon/groen.png',
+	iconSize: [largePixels,largePixels],
+	iconAnchor:   [groenPosX+(0.5*largePixels), groenPosY+(0.5*largePixels)] //positioning
+});
+//Stilte:
+var stilteS = new L.icon({ //stilte small
+	iconUrl: 'icon/stilte.png',
+	iconSize: [smallPixels,smallPixels],
+	iconAnchor:   [stiltePosX+(0.5*smallPixels), stiltePosY+(0.5*smallPixels)] //positioning
+});
+var stilteM = new L.icon({ //stilte medium
+	iconUrl: 'icon/stilte.png',
+	iconSize: [mediumPixels,mediumPixels],
+	iconAnchor:   [stiltePosX+(0.5*mediumPixels), stiltePosY+(0.5*mediumPixels)] //positioning
+});
+var stilteL = new L.icon({ //stilte large
+	iconUrl: 'icon/stilte.png',
+	iconSize: [largePixels,largePixels],
+	iconAnchor:   [stiltePosX+(0.5*largePixels), stiltePosY+(0.5*largePixels)] //positioning
+});
+
+// spinner stuff:
 $body = $("body");
 
 $(document).on({
