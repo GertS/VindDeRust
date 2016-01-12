@@ -237,11 +237,31 @@ function getParamFromClusters(clusterGroup) {
 	$.each(cg, function(key,feature) {
 		cgLat = feature._latlng.lat;
 		cgLng = feature._latlng.lng;
+		cgCount=feature._childCount; //Benches per cluster
 		// var marker = L.marker([feature._latlng.lat,feature._latlng.lng]).addTo(map);
-		console.log(feature._latlng);
+		console.log(cgCount);
+		// console.log(feature._latlng);
+		addMarker("bench",cgCount,cgLat,cgLng);
 		getValueFromWMS(cgLat,cgLng,"Geluidbelasting_wegen");
 		getValueFromWMS(cgLat,cgLng,"pot_fijnstof_invang");
 	});
+}
+
+function addMarker(variable,value,lat,lng){
+	if (variable == "bench"){
+		iconName = 'zitten';
+		// iconName = 'bankje';
+		if(value < 5 || typeof value === 'undefined'){
+			iconName += 'S';
+		}else if(value < 15){
+			iconName += 'M';
+		}else{
+			iconName += 'L';
+		}
+	}
+	// iconName = 'bankjeS';
+	console.log(iconName);
+	L.marker([lat,lng],{icon:window[iconName]}).addTo(map);
 }
 
 // Icons:
@@ -267,9 +287,9 @@ var dotIcon = new L.icon({
 	iconAnchor:   [5, 5] //positioning
 });
 
-var smallPixels = 5;
-var mediumPixels= 10;
-var largePixels = 20;
+var smallPixels = 30;
+var mediumPixels= 50;
+var largePixels = 70;
 
 var zittenPosX = +10;
 var zittenPosY = +0;
@@ -288,7 +308,7 @@ var zittenS = new L.icon({ //zitten small
 	iconAnchor:   [zittenPosX+(0.5*smallPixels), zittenPosY+(0.5*smallPixels)] //positioning
 });
 var zittenM = new L.icon({ //zitten medium
-	iconUrl: 'icsmallPixelson/zitten.png',
+	iconUrl: 'icon/zitten.png',
 	iconSize: [mediumPixels,mediumPixels],
 	iconAnchor:   [zittenPosX+(0.5*mediumPixels), zittenPosY+(0.5*mediumPixels)] //positioning
 });
@@ -304,7 +324,7 @@ var bankjeS = new L.icon({ //bankje small
 	iconAnchor:   [bankjePosX+(0.5*smallPixels), bankjePosY+(0.5*smallPixels)] //positioning
 });
 var bankjeM = new L.icon({ //bankje medium
-	iconUrl: 'icsmallPixelson/bankje.png',
+	iconUrl: 'icon/bankje.png',
 	iconSize: [mediumPixels,mediumPixels],
 	iconAnchor:   [bankjePosX+(0.5*mediumPixels), bankjePosY+(0.5*mediumPixels)] //positioning
 });
@@ -320,7 +340,7 @@ var groenS = new L.icon({ //groen small
 	iconAnchor:   [groenPosX+(0.5*smallPixels), groenPosY+(0.5*smallPixels)] //positioning
 });
 var groenM = new L.icon({ //groen medium
-	iconUrl: 'icsmallPixelson/groen.png',
+	iconUrl: 'icon/groen.png',
 	iconSize: [mediumPixels,mediumPixels],
 	iconAnchor:   [groenPosX+(0.5*mediumPixels), groenPosY+(0.5*mediumPixels)] //positioning
 });
@@ -336,7 +356,7 @@ var stilteS = new L.icon({ //stilte small
 	iconAnchor:   [stiltePosX+(0.5*smallPixels), stiltePosY+(0.5*smallPixels)] //positioning
 });
 var stilteM = new L.icon({ //stilte medium
-	iconUrl: 'icsmallPixelson/stilte.png',
+	iconUrl: 'icon/stilte.png',
 	iconSize: [mediumPixels,mediumPixels],
 	iconAnchor:   [stiltePosX+(0.5*mediumPixels), stiltePosY+(0.5*mediumPixels)] //positioning
 });
