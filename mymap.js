@@ -146,12 +146,13 @@ function getValueFromWMS(lat,lng,requestVariable){
 		$.ajax({url: url,
 			success: function(result){
 				value = parseFloat(result.features[0].properties.GRAY_INDEX);
+				addMarker("fijnstofGroen",value,lat,lng);
 				// console.log(value);
-				if (value > 36){
-					var marker = L.marker([lat,lng],{icon:leafIconLarge}).addTo(map);
-				}else if (value > 0){
-					var marker = L.marker([lat,lng],{icon:leafIconSmall}).addTo(map);
-				}				
+				// if (value > 36){
+				// 	var marker = L.marker([lat,lng],{icon:leafIconLarge}).addTo(map);
+				// }else if (value > 0){
+				// 	var marker = L.marker([lat,lng],{icon:leafIconSmall}).addTo(map);
+				// }				
 		}, error: function(errorThrown){
 			console.log(errorThrown);
 		}});
@@ -265,6 +266,16 @@ function addMarker(variable,value,lat,lng){
 		if(value > 55 ){
 			iconName += 'S';
 		}else if(value > 40){
+			iconName += 'M';
+		}else{
+			iconName += 'L';
+		}
+	}
+	if (variable == "fijnstofGroen"){
+		iconName = 'groen';
+		if(value < 0 ){
+			iconName += 'S';
+		}else if(value < 38){
 			iconName += 'M';
 		}else{
 			iconName += 'L';
