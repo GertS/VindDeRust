@@ -19,7 +19,7 @@ $( document ).ready(function() {
 	
 	map.on('click', function(e) {
 		// console.log(e);
-		var marker = L.marker([e.latlng.lat,e.latlng.lng],{icon:dotIcon}).addTo(map);
+		// var marker = L.marker([e.latlng.lat,e.latlng.lng],{icon:dotIcon}).addTo(map);
 		getValueFromWMS(e.latlng.lat,e.latlng.lng,"Geluidbelasting_wegen");
 		getValueFromWMS(e.latlng.lat,e.latlng.lng,"pot_fijnstof_invang");
     });
