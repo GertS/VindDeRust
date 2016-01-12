@@ -233,6 +233,84 @@ var dotIcon = new L.icon({
 	iconAnchor:   [5, 5] //positioning
 });
 
+var smallPixels = 5;
+var mediumPixels= 10;
+var largePixels = 20;
+
+var zittenPosX = +10;
+var zittenPosY = +0;
+var bankjePosX = +10;
+var bankjePosY = +0;
+var groenPosX = -10;
+var groenPosY = +0;
+var stiltePosX = -5;
+var stiltePosY = +10;
+
+//New Icons:
+//Zitten:
+var zittenS = new L.icon({ //zitten small
+	iconUrl: 'icon/zitten.png',
+	iconSize: [smallPixels,smallPixels],
+	iconAnchor:   [zittenPosX+(0.5*smallPixels), zittenPosY+(0.5*smallPixels)] //positioning
+});
+var zittenM = new L.icon({ //zitten medium
+	iconUrl: 'icsmallPixelson/zitten.png',
+	iconSize: [mediumPixels,mediumPixels],
+	iconAnchor:   [zittenPosX+(0.5*mediumPixels), zittenPosY+(0.5*mediumPixels)] //positioning
+});
+var zittenL = new L.icon({ //zitten large
+	iconUrl: 'icon/zitten.png',
+	iconSize: [largePixels,largePixels],
+	iconAnchor:   [zittenPosX+(0.5*largePixels), zittenPosY+(0.5*largePixels)] //positioning
+});
+//Bankje:
+var bankjeS = new L.icon({ //bankje small
+	iconUrl: 'icon/bankje.png',
+	iconSize: [smallPixels,smallPixels],
+	iconAnchor:   [bankjePosX+(0.5*smallPixels), bankjePosY+(0.5*smallPixels)] //positioning
+});
+var bankjeM = new L.icon({ //bankje medium
+	iconUrl: 'icsmallPixelson/bankje.png',
+	iconSize: [mediumPixels,mediumPixels],
+	iconAnchor:   [bankjePosX+(0.5*mediumPixels), bankjePosY+(0.5*mediumPixels)] //positioning
+});
+var bankjeL = new L.icon({ //bankje large
+	iconUrl: 'icon/bankje.png',
+	iconSize: [largePixels,largePixels],
+	iconAnchor:   [bankjePosX+(0.5*largePixels), bankjePosY+(0.5*largePixels)] //positioning
+});
+//Groen:
+var groenS = new L.icon({ //groen small
+	iconUrl: 'icon/groen.png',
+	iconSize: [smallPixels,smallPixels],
+	iconAnchor:   [groenPosX+(0.5*smallPixels), groenPosY+(0.5*smallPixels)] //positioning
+});
+var groenM = new L.icon({ //groen medium
+	iconUrl: 'icsmallPixelson/groen.png',
+	iconSize: [mediumPixels,mediumPixels],
+	iconAnchor:   [groenPosX+(0.5*mediumPixels), groenPosY+(0.5*mediumPixels)] //positioning
+});
+var groenL = new L.icon({ //groen large
+	iconUrl: 'icon/groen.png',
+	iconSize: [largePixels,largePixels],
+	iconAnchor:   [groenPosX+(0.5*largePixels), groenPosY+(0.5*largePixels)] //positioning
+});
+//Stilte:
+var stilteS = new L.icon({ //stilte small
+	iconUrl: 'icon/stilte.png',
+	iconSize: [smallPixels,smallPixels],
+	iconAnchor:   [stiltePosX+(0.5*smallPixels), stiltePosY+(0.5*smallPixels)] //positioning
+});
+var stilteM = new L.icon({ //stilte medium
+	iconUrl: 'icsmallPixelson/stilte.png',
+	iconSize: [mediumPixels,mediumPixels],
+	iconAnchor:   [stiltePosX+(0.5*mediumPixels), stiltePosY+(0.5*mediumPixels)] //positioning
+});
+var stilteL = new L.icon({ //stilte large
+	iconUrl: 'icon/stilte.png',
+	iconSize: [largePixels,largePixels],
+	iconAnchor:   [stiltePosX+(0.5*largePixels), stiltePosY+(0.5*largePixels)] //positioning
+});
 
 // spinner stuff:
 $body = $("body");
