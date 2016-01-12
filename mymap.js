@@ -1,7 +1,7 @@
 $( document ).ready(function() {
     console.log( "ready to execute the code" );
     var timeoutHandler;
-    var basemapNr = 4;
+    var basemapNr = 2;
     var initLocation = {
     	lat: 51.9167,
     	lng: 4.5000,
