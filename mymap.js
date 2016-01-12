@@ -310,8 +310,8 @@ var dotIcon = new L.icon({
 });
 
 var smallPixels = 30;
-var mediumPixels= 50;
-var largePixels = 70;
+var mediumPixels= 90;
+var largePixels = 150;
 
 var zittenPosX = +10;
 var zittenPosY = +0;
