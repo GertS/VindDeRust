@@ -116,13 +116,14 @@ function getValueFromWMS(lat,lng,requestVariable){
 		&FEATURE_COUNT=10";
 		$.ajax({url: url, success: function(result){
 			value = result.split(";")[3];
+			addMarker("roadNoise",value,lat,lng);
 			// console.log(value);
-			if (parseFloat(value) > 55.0){
-				var marker = L.marker([lat,lng],{icon:speakerIcon}).addTo(map).bindPopup("geluid van wegen: "+ parseInt(value)+"dB");
-				// var marker = L.marker([lat,lng],{icon:speakerIcon});
-				// clusterGroup.addLayer(marker);
-				// map.addLayer(clusterGroup);
-			}
+			// if (parseFloat(value) > 55.0){
+			// 	var marker = L.marker([lat,lng],{icon:speakerIcon}).addTo(map).bindPopup("geluid van wegen: "+ parseInt(value)+"dB");
+			// 	// var marker = L.marker([lat,lng],{icon:speakerIcon});
+			// 	// clusterGroup.addLayer(marker);
+			// 	// map.addLayer(clusterGroup);
+			// }
 			// var marker = L.marker([lat,lng]).addTo(map).bindPopup(value+"dB");
 		}});
 	}else if (requestVariable == "pot_fijnstof_invang"){ //Cross origin problem
@@ -239,7 +240,7 @@ function getParamFromClusters(clusterGroup) {
 		cgLng = feature._latlng.lng;
 		cgCount=feature._childCount; //Benches per cluster
 		// var marker = L.marker([feature._latlng.lat,feature._latlng.lng]).addTo(map);
-		console.log(cgCount);
+		// console.log(cgCount);
 		// console.log(feature._latlng);
 		addMarker("bench",cgCount,cgLat,cgLng);
 		getValueFromWMS(cgLat,cgLng,"Geluidbelasting_wegen");
@@ -259,8 +260,18 @@ function addMarker(variable,value,lat,lng){
 			iconName += 'L';
 		}
 	}
+	if (variable == "roadNoise"){
+		iconName = 'stilte';
+		if(value > 55 ){
+			iconName += 'S';
+		}else if(value > 40){
+			iconName += 'M';
+		}else{
+			iconName += 'L';
+		}
+	}
 	// iconName = 'bankjeS';
-	console.log(iconName);
+	console.log(iconName, value);
 	L.marker([lat,lng],{icon:window[iconName]}).addTo(map);
 }
 
