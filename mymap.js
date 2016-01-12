@@ -10,16 +10,12 @@ $( document ).ready(function() {
     map = initBaseMap(basemapNr,initLocation);
     var requestVariable = "Geluidbelasting_wegen";
     var requestVariable2 = "pot_fijnstof_invang"
-    // getValueFromWMS(initLocation.lat,initLocation.lng,requestVariable);
-    // getValueFromWMS(initLocation.lat,initLocation.lng,requestVariable2);
     
     var benchCluster = L.markerClusterGroup();
 
     getBenches(map.getBounds(), benchCluster);
 	
 	map.on('click', function(e) {
-		// console.log(e);
-		// var marker = L.marker([e.latlng.lat,e.latlng.lng],{icon:dotIcon}).addTo(map);
 		getValueFromWMS(e.latlng.lat,e.latlng.lng,"Geluidbelasting_wegen");
 		getValueFromWMS(e.latlng.lat,e.latlng.lng,"pot_fijnstof_invang");
     });
@@ -117,14 +113,6 @@ function getValueFromWMS(lat,lng,requestVariable){
 		$.ajax({url: url, success: function(result){
 			value = result.split(";")[3];
 			addMarker("roadNoise",value,lat,lng);
-			// console.log(value);
-			// if (parseFloat(value) > 55.0){
-			// 	var marker = L.marker([lat,lng],{icon:speakerIcon}).addTo(map).bindPopup("geluid van wegen: "+ parseInt(value)+"dB");
-			// 	// var marker = L.marker([lat,lng],{icon:speakerIcon});
-			// 	// clusterGroup.addLayer(marker);
-			// 	// map.addLayer(clusterGroup);
-			// }
-			// var marker = L.marker([lat,lng]).addTo(map).bindPopup(value+"dB");
 		}});
 	}else if (requestVariable == "pot_fijnstof_invang"){ //Cross origin problem
 		var url = "https://crossorigin.me/http://geodata.rivm.nl/geoserver/dank/wms?\
@@ -146,13 +134,7 @@ function getValueFromWMS(lat,lng,requestVariable){
 		$.ajax({url: url,
 			success: function(result){
 				value = parseFloat(result.features[0].properties.GRAY_INDEX);
-				addMarker("fijnstofGroen",value,lat,lng);
-				// console.log(value);
-				// if (value > 36){
-				// 	var marker = L.marker([lat,lng],{icon:leafIconLarge}).addTo(map);
-				// }else if (value > 0){
-				// 	var marker = L.marker([lat,lng],{icon:leafIconSmall}).addTo(map);
-				// }				
+				addMarker("fijnstofGroen",value,lat,lng);			
 		}, error: function(errorThrown){
 			console.log(errorThrown);
 		}});
@@ -185,7 +167,6 @@ function getBenches(bbox, clusterGroup) {
 
 			var marker = L.marker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], {opacity: 0.0});
 			clusterGroup.addLayer(marker);
-			// map.addLayer(clusterGroup);
 		});
 		// map.addLayer(clusterGroup,{opacity:0.5});
 		/////////////////////
@@ -196,8 +177,6 @@ function getBenches(bbox, clusterGroup) {
 		if (!isFinite(clusterGroup._map.getMaxZoom())) {
 			throw "Map has no maxZoom specified";
 		}
-		// clusterGroup._featureGroup.onAdd(map);
-		// clusterGroup._nonPointGroup.onAdd(map);
 		if (!clusterGroup._gridClusters) {
 			clusterGroup._generateInitialClusters();
 		}
@@ -208,15 +187,7 @@ function getBenches(bbox, clusterGroup) {
 		clusterGroup._needsRemoving = [];
 		clusterGroup._zoom = clusterGroup._map.getZoom();
 		clusterGroup._currentShownBounds = clusterGroup._getExpandedVisibleBounds();
-
-		// clusterGroup._map.on('zoomend', clusterGroup._zoomEnd, clusterGroup);
-		// clusterGroup._map.on('moveend', clusterGroup._moveEnd, clusterGroup);
-
-		if (clusterGroup._spiderfierOnAdd) { //TODO FIXME: Not sure how to have spiderfier add something on here nicely
-			clusterGroup._spiderfierOnAdd();
-		}
 		clusterGroup._bindEvents();
-
 		l = clusterGroup._needsClustering;
 		clusterGroup._needsClustering = [];
 		clusterGroup.addLayers(l);
@@ -240,9 +211,6 @@ function getParamFromClusters(clusterGroup) {
 		cgLat = feature._latlng.lat;
 		cgLng = feature._latlng.lng;
 		cgCount=feature._childCount; //Benches per cluster
-		// var marker = L.marker([feature._latlng.lat,feature._latlng.lng]).addTo(map);
-		// console.log(cgCount);
-		// console.log(feature._latlng);
 		addMarker("bench",cgCount,cgLat,cgLng);
 		getValueFromWMS(cgLat,cgLng,"Geluidbelasting_wegen");
 		getValueFromWMS(cgLat,cgLng,"pot_fijnstof_invang");
@@ -281,34 +249,11 @@ function addMarker(variable,value,lat,lng){
 			iconName += 'L';
 		}
 	}
-	// iconName = 'bankjeS';
-	console.log(iconName, value);
+	// console.log(iconName, value);
 	L.marker([lat,lng],{icon:window[iconName]}).addTo(map);
 }
 
-// Icons:
-
-var speakerIcon = new L.icon({
-	iconUrl: 'icon/loudspeaker.png',
-	iconSize: [20,20],
-	iconAnchor:   [-10, 10] //positioning
-});
-var leafIconSmall = new L.icon({
-	iconUrl: 'icon/leaf.png',
-	iconSize: [25,10],
-	iconAnchor:   [-10, 0] //positioning
-});
-var leafIconLarge = new L.icon({
-	iconUrl: 'icon/leaf.png',
-	iconSize: [40,20],
-	iconAnchor:   [-10, 0] //positioning
-});
-var dotIcon = new L.icon({
-	iconUrl: 'icon/dot.png',
-	iconSize: [10,10],
-	iconAnchor:   [5, 5] //positioning
-});
-
+//Icon variables:
 var smallPixels = 30;
 var mediumPixels= 90;
 var largePixels = 150;
@@ -322,7 +267,7 @@ var groenPosY = +0;
 var stiltePosX = -5;
 var stiltePosY = +10;
 
-//New Icons:
+//Icons:
 //Zitten:
 var zittenS = new L.icon({ //zitten small
 	iconUrl: 'icon/zitten.png',
