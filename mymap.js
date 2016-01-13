@@ -5,7 +5,7 @@ $( document ).ready(function() {
     var initLocation = {
     	lat: 52.078660,
     	lng: 4.292499,
-    	zoomLevel: 15, 
+    	zoomLevel: 18, 
 
     };
     map = initBaseMap(basemapNr,initLocation);
@@ -116,7 +116,7 @@ function getValueFromWMS(lat,lng,requestVariable){
 				value = result.split(";")[3];
 				addMarker("roadNoise",value,lat,lng);
 			}, error: function(errorThrown){
-				console.log(errorThrown,lat,lng);
+				console.log(errorThrown,"noise dB",lat,lng);
 			}, timeout: 5000 // sets timeout to 5 seconds
 		});
 	}else if (requestVariable == "pot_fijnstof_invang"){ //Cross origin problem
@@ -141,7 +141,7 @@ function getValueFromWMS(lat,lng,requestVariable){
 				value = parseFloat(result.features[0].properties.GRAY_INDEX);
 				addMarker("fijnstofGroen",value,lat,lng);			
 		}, error: function(errorThrown){
-			console.log(errorThrown,lat,lng);
+			console.log(errorThrown,"fijnstof",lat,lng);
 		}, timeout: 5000 // sets timeout to 5 seconds
 	});
 	}
