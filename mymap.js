@@ -3,9 +3,10 @@ $( document ).ready(function() {
     var timeoutHandler;
     var basemapNr = 2;
     var initLocation = {
-    	lat: 51.9167,
-    	lng: 4.5000,
-    	zoomLevel: 13
+    	lat: 52.078660,
+    	lng: 4.292499,
+    	zoomLevel: 15, 
+
     };
     map = initBaseMap(basemapNr,initLocation);
     var requestVariable = "Geluidbelasting_wegen";
