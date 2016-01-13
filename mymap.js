@@ -111,10 +111,14 @@ function getValueFromWMS(lat,lng,requestVariable){
 		&I=150\
 		&J=400\
 		&FEATURE_COUNT=10";
-		$.ajax({url: url, success: function(result){
-			value = result.split(";")[3];
-			addMarker("roadNoise",value,lat,lng);
-		}});
+		$.ajax({url: url, 
+			success: function(result){
+				value = result.split(";")[3];
+				addMarker("roadNoise",value,lat,lng);
+			}, error: function(errorThrown){
+				console.log(errorThrown,lat,lng);
+			}, timeout: 5000 // sets timeout to 5 seconds
+		});
 	}else if (requestVariable == "pot_fijnstof_invang"){ //Cross origin problem
 		var url = "https://crossorigin.me/http://geodata.rivm.nl/geoserver/dank/wms?\
 		SERVICE=WMS&\
@@ -137,8 +141,9 @@ function getValueFromWMS(lat,lng,requestVariable){
 				value = parseFloat(result.features[0].properties.GRAY_INDEX);
 				addMarker("fijnstofGroen",value,lat,lng);			
 		}, error: function(errorThrown){
-			console.log(errorThrown);
-		}});
+			console.log(errorThrown,lat,lng);
+		}, timeout: 5000 // sets timeout to 5 seconds
+	});
 	}
 }
 
