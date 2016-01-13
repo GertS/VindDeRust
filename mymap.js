@@ -159,6 +159,7 @@ function getBenches(bbox, clusterGroup) {
 	}).done(function(data) {
 		var geo_data = osmtogeojson(data);
 		clusterGroup.clearLayers();
+		$('.leaflet-marker-pane').empty(); //Delete all the markers in a 'houtje-touwtje' way
 		$.each(geo_data.features, function(key, feature) {
 			
 			var benchIcon = new L.icon({
