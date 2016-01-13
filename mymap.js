@@ -258,14 +258,14 @@ var smallPixels = 30;
 var mediumPixels= 90;
 var largePixels = 150;
 
-var zittenPosX = +10;
-var zittenPosY = +0;
+var zittenPosX = +20;
+var zittenPosY = +15;
 var bankjePosX = +10;
 var bankjePosY = +0;
-var groenPosX = -10;
-var groenPosY = +0;
-var stiltePosX = -5;
-var stiltePosY = +10;
+var groenPosX = -15;
+var groenPosY = -10;
+var stiltePosX = -20;
+var stiltePosY = +20;
 
 //Icons:
 //Zitten:
