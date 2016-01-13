@@ -17,8 +17,8 @@ $( document ).ready(function() {
     getBenches(map.getBounds(), benchCluster);
 	
 	map.on('click', function(e) {
-		getValueFromWMS(e.latlng.lat,e.latlng.lng,"Geluidbelasting_wegen");
-		getValueFromWMS(e.latlng.lat,e.latlng.lng,"pot_fijnstof_invang");
+		getValueFromWMS(e.latlng.lat,e.latlng.lng,"Geluidbelasting_wegen",true);
+		getValueFromWMS(e.latlng.lat,e.latlng.lng,"pot_fijnstof_invang",true);
     });
 
 
@@ -82,7 +82,7 @@ function initBaseMap(basemapNr,initLocation){
 	basemap.addTo(map);
 	return map;
 }
-function getValueFromWMS(lat,lng,requestVariable){
+function getValueFromWMS(lat,lng,requestVariable,byClicking){
 	/**
 	* Does an AJAX request to get the value of a certain location
 	* defined in latitude and longitude (EPSG:4326)
@@ -114,7 +114,7 @@ function getValueFromWMS(lat,lng,requestVariable){
 		$.ajax({url: url, 
 			success: function(result){
 				value = result.split(";")[3];
-				addMarker("roadNoise",value,lat,lng);
+				addMarker("roadNoise",value,lat,lng,byClicking);
 			}, error: function(errorThrown){
 				console.log(errorThrown,"noise dB",lat,lng);
 			}, timeout: 5000 // sets timeout to 5 seconds
@@ -139,7 +139,7 @@ function getValueFromWMS(lat,lng,requestVariable){
 		$.ajax({url: url,
 			success: function(result){
 				value = parseFloat(result.features[0].properties.GRAY_INDEX);
-				addMarker("fijnstofGroen",value,lat,lng);			
+				addMarker("fijnstofGroen",value,lat,lng,byClicking);			
 		}, error: function(errorThrown){
 			console.log(errorThrown,"fijnstof",lat,lng);
 		}, timeout: 5000 // sets timeout to 5 seconds
@@ -164,7 +164,9 @@ function getBenches(bbox, clusterGroup) {
 	}).done(function(data) {
 		var geo_data = osmtogeojson(data);
 		clusterGroup.clearLayers();
-		$('.leaflet-marker-pane').empty(); //Delete all the markers in a 'houtje-touwtje' way
+		$('.leaflet-marker-pane').find('img').each(function(i) { 
+			if($(this).attr("alt") == "notclicked"){$(this).remove()}; //Delete all the markers that are not created by clicking in a 'houtje-touwtje' way
+		});
 		$.each(geo_data.features, function(key, feature) {
 			
 			var benchIcon = new L.icon({
@@ -218,13 +220,13 @@ function getParamFromClusters(clusterGroup) {
 		cgLat = feature._latlng.lat;
 		cgLng = feature._latlng.lng;
 		cgCount=feature._childCount; //Benches per cluster
-		addMarker("bench",cgCount,cgLat,cgLng);
-		getValueFromWMS(cgLat,cgLng,"Geluidbelasting_wegen");
-		getValueFromWMS(cgLat,cgLng,"pot_fijnstof_invang");
+		addMarker("bench",cgCount,cgLat,cgLng,false);
+		getValueFromWMS(cgLat,cgLng,"Geluidbelasting_wegen",false);
+		getValueFromWMS(cgLat,cgLng,"pot_fijnstof_invang",false);
 	});
 }
 
-function addMarker(variable,value,lat,lng){
+function addMarker(variable,value,lat,lng,byClicking){
 	if (variable == "bench"){
 		iconName = 'zitten';
 		// iconName = 'bankje';
@@ -257,7 +259,11 @@ function addMarker(variable,value,lat,lng){
 		}
 	}
 	// console.log(iconName, value);
-	L.marker([lat,lng],{icon:window[iconName]}).addTo(map);
+	if (byClicking){
+		L.marker([lat,lng],{icon:window[iconName],alt:"clicked"}).addTo(map);
+	}else{
+		L.marker([lat,lng],{icon:window[iconName],alt:"notclicked"}).addTo(map);
+	}
 }
 
 //Icon variables:
