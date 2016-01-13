@@ -5,7 +5,7 @@ $( document ).ready(function() {
     var initLocation = {
     	lat: 52.078660,
     	lng: 4.292499,
-    	zoomLevel: 15, 
+    	zoomLevel: 14, 
 
     };
     map = initBaseMap(basemapNr,initLocation);
@@ -111,10 +111,14 @@ function getValueFromWMS(lat,lng,requestVariable){
 		&I=150\
 		&J=400\
 		&FEATURE_COUNT=10";
-		$.ajax({url: url, success: function(result){
-			value = result.split(";")[3];
-			addMarker("roadNoise",value,lat,lng);
-		}});
+		$.ajax({url: url, 
+			success: function(result){
+				value = result.split(";")[3];
+				addMarker("roadNoise",value,lat,lng);
+			}, error: function(errorThrown){
+				console.log(errorThrown,"noise dB",lat,lng);
+			}, timeout: 5000 // sets timeout to 5 seconds
+		});
 	}else if (requestVariable == "pot_fijnstof_invang"){ //Cross origin problem
 		var url = "https://crossorigin.me/http://geodata.rivm.nl/geoserver/dank/wms?\
 		SERVICE=WMS&\
@@ -137,8 +141,9 @@ function getValueFromWMS(lat,lng,requestVariable){
 				value = parseFloat(result.features[0].properties.GRAY_INDEX);
 				addMarker("fijnstofGroen",value,lat,lng);			
 		}, error: function(errorThrown){
-			console.log(errorThrown);
-		}});
+			console.log(errorThrown,"fijnstof",lat,lng);
+		}, timeout: 5000 // sets timeout to 5 seconds
+	});
 	}
 }
 
@@ -170,7 +175,7 @@ function getBenches(bbox, clusterGroup) {
 			var marker = L.marker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], {opacity: 0.0});
 			clusterGroup.addLayer(marker);
 		});
-		// map.addLayer(clusterGroup,{opacity:0.5});
+		// map.addLayer(clusterGroup,{opacity:0.6});
 		/////////////////////
 		//Get markerclusters:
 		/////////////////////
@@ -223,7 +228,7 @@ function addMarker(variable,value,lat,lng){
 	if (variable == "bench"){
 		iconName = 'zitten';
 		// iconName = 'bankje';
-		if(value < 5 || typeof value === 'undefined'){
+		if(value < 1 || typeof value === 'undefined'){
 			iconName += 'S';
 		}else if(value < 15){
 			iconName += 'M';
@@ -256,83 +261,83 @@ function addMarker(variable,value,lat,lng){
 }
 
 //Icon variables:
-var smallPixels = 30;
-var mediumPixels= 90;
+var smallPixels = 50;
+var mediumPixels= 100;
 var largePixels = 150;
 
-var zittenPosX = +20;
-var zittenPosY = +15;
-var bankjePosX = +10;
-var bankjePosY = +0;
-var groenPosX = -15;
-var groenPosY = -10;
-var stiltePosX = -20;
-var stiltePosY = +20;
+var zittenPosX = 0.7;
+var zittenPosY = 0.5;
+var bankjePosX = zittenPosX;
+var bankjePosY = zittenPosY;
+var groenPosX = 0.4;
+var groenPosY = 0.8;
+var stiltePosX = 0.2;
+var stiltePosY = 0.2;
 
 //Icons:
 //Zitten:
 var zittenS = new L.icon({ //zitten small
 	iconUrl: 'icon/zitten.png',
 	iconSize: [smallPixels,smallPixels],
-	iconAnchor:   [zittenPosX+(0.5*smallPixels), zittenPosY+(0.5*smallPixels)] //positioning
+	iconAnchor:   [zittenPosX*smallPixels, zittenPosY*smallPixels] //positioning
 });
 var zittenM = new L.icon({ //zitten medium
 	iconUrl: 'icon/zitten.png',
 	iconSize: [mediumPixels,mediumPixels],
-	iconAnchor:   [zittenPosX+(0.5*mediumPixels), zittenPosY+(0.5*mediumPixels)] //positioning
+	iconAnchor:   [zittenPosX*mediumPixels, zittenPosY*mediumPixels] //positioning
 });
 var zittenL = new L.icon({ //zitten large
 	iconUrl: 'icon/zitten.png',
 	iconSize: [largePixels,largePixels],
-	iconAnchor:   [zittenPosX+(0.5*largePixels), zittenPosY+(0.5*largePixels)] //positioning
+	iconAnchor:   [zittenPosX*largePixels, zittenPosY*largePixels] //positioning
 });
 //Bankje:
 var bankjeS = new L.icon({ //bankje small
 	iconUrl: 'icon/bankje.png',
 	iconSize: [smallPixels,smallPixels],
-	iconAnchor:   [bankjePosX+(0.5*smallPixels), bankjePosY+(0.5*smallPixels)] //positioning
+	iconAnchor:   [bankjePosX*smallPixels, bankjePosY*smallPixels] //positioning
 });
 var bankjeM = new L.icon({ //bankje medium
 	iconUrl: 'icon/bankje.png',
 	iconSize: [mediumPixels,mediumPixels],
-	iconAnchor:   [bankjePosX+(0.5*mediumPixels), bankjePosY+(0.5*mediumPixels)] //positioning
+	iconAnchor:   [bankjePosX*mediumPixels, bankjePosY*mediumPixels] //positioning
 });
 var bankjeL = new L.icon({ //bankje large
 	iconUrl: 'icon/bankje.png',
 	iconSize: [largePixels,largePixels],
-	iconAnchor:   [bankjePosX+(0.5*largePixels), bankjePosY+(0.5*largePixels)] //positioning
+	iconAnchor:   [bankjePosX*largePixels, bankjePosY*largePixels] //positioning
 });
 //Groen:
 var groenS = new L.icon({ //groen small
 	iconUrl: 'icon/groen.png',
 	iconSize: [smallPixels,smallPixels],
-	iconAnchor:   [groenPosX+(0.5*smallPixels), groenPosY+(0.5*smallPixels)] //positioning
+	iconAnchor:   [groenPosX*smallPixels, groenPosY*smallPixels] //positioning
 });
 var groenM = new L.icon({ //groen medium
 	iconUrl: 'icon/groen.png',
 	iconSize: [mediumPixels,mediumPixels],
-	iconAnchor:   [groenPosX+(0.5*mediumPixels), groenPosY+(0.5*mediumPixels)] //positioning
+	iconAnchor:   [groenPosX*mediumPixels, groenPosY*mediumPixels] //positioning
 });
 var groenL = new L.icon({ //groen large
 	iconUrl: 'icon/groen.png',
 	iconSize: [largePixels,largePixels],
-	iconAnchor:   [groenPosX+(0.5*largePixels), groenPosY+(0.5*largePixels)] //positioning
+	iconAnchor:   [groenPosX*largePixels, groenPosY*largePixels] //positioning
 });
 //Stilte:
 var stilteS = new L.icon({ //stilte small
 	iconUrl: 'icon/stilte.png',
 	iconSize: [smallPixels,smallPixels],
-	iconAnchor:   [stiltePosX+(0.5*smallPixels), stiltePosY+(0.5*smallPixels)] //positioning
+	iconAnchor:   [stiltePosX*smallPixels, stiltePosY*smallPixels] //positioning
 });
 var stilteM = new L.icon({ //stilte medium
 	iconUrl: 'icon/stilte.png',
 	iconSize: [mediumPixels,mediumPixels],
-	iconAnchor:   [stiltePosX+(0.5*mediumPixels), stiltePosY+(0.5*mediumPixels)] //positioning
+	iconAnchor:   [stiltePosX*mediumPixels, stiltePosY*mediumPixels] //positioning
 });
 var stilteL = new L.icon({ //stilte large
 	iconUrl: 'icon/stilte.png',
 	iconSize: [largePixels,largePixels],
-	iconAnchor:   [stiltePosX+(0.5*largePixels), stiltePosY+(0.5*largePixels)] //positioning
+	iconAnchor:   [stiltePosX*largePixels, stiltePosY*largePixels] //positioning
 });
 
 // spinner stuff:
