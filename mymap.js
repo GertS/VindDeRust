@@ -353,3 +353,11 @@ $(document).on({
     ajaxStart: function() { $body.addClass("loading");    },
     ajaxStop: function() { $body.removeClass("loading"); }    
 });
+
+// overlay stuff:
+$(function($) {
+  var slider = $("#slider").slideReveal({
+    trigger: $("#trigger")
+  });
+});
+$(slider).on('click', function() {$('#slider').slideReveal("hide");});

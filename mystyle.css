@@ -35,3 +35,13 @@ body.loading {
 body.loading .modal {
     display: block;
 }
+.slider {
+	color: white;
+	margin: 10px;
+}
+.trigger {
+    position: absolute;
+    z-index: 1000;
+    top: 80px;
+    left: 10px;
+}
